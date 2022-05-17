@@ -76,12 +76,15 @@ class VQA:
         for epoch in range(args.epochs):
             quesid2ans = {}
             for i, (ques_id, feats, boxes, sent, target, answer_type, img_id) in iter_wrapper(enumerate(loader)):
+            # for i, ( ques_id, feats, boxes, ocr_feats, ocr_boxes, sent, target, answer_type, img_id) in iter_wrapper(enumerate(loader)):
 
                 self.model.train()
                 self.optim.zero_grad()
 
                 feats, boxes, target = feats.cuda(), boxes.cuda(), target.cuda()
+                # feats, boxes, ocr_feats, ocr_boxes, target = feats.cuda(), boxes.cuda(), ocr_feats.cuda(), ocr_boxes.cuda(), target.cuda()
                 logit = self.model(feats, boxes, sent)
+                # logit = self.model(feats, boxes, ocr_feats, ocr_boxes, sent)
                 assert logit.dim() == target.dim() == 2
                 loss = self.bce_loss(logit, target)
                 loss = loss * logit.size(1)
@@ -93,17 +96,20 @@ class VQA:
                 score, label = logit.max(1)
                 for qid, l, ans_type in zip(ques_id, label.cpu().numpy(), answer_type):
                     ans = dset.label2ans[l]
-                    quesid2ans[qid.item()] = (ans, ans_type)
+                    quesid2ans[qid.item()] = (img_id, ans, ans_type)
 
             average_score, class_score = evaluator.evaluate_ans_type(quesid2ans)
-            yes_score, other_score, number_score, unanswerable_score = class_score
-            log_str = "Epoch %d: train average: %0.2f, yes: %0.2f  other: %0.2f  number: %0.2f  unanswerable: %0.2f\n" % \
-            (epoch, average_score*100., yes_score*100., other_score*100.0, number_score*100.0, unanswerable_score*100.0)
+            # yes_score, other_score, number_score, unanswerable_score = class_score
+            yes_score, other_score, number_score, unanswerable_score, ocr_score = class_score
+            log_str = "Epoch %d: train average: %0.2f, yes: %0.2f  other: %0.2f  number: %0.2f  unanswerable: %0.2f ocr: %0.2f\n" % \
+            (epoch, average_score*100., yes_score*100., other_score*100.0, \
+            number_score*100.0, unanswerable_score*100.0, ocr_score*100.0)
 
             if self.valid_tuple is not None:  # Do Validation
                 # include_oov_score, no_oov_score = self.evaluate(eval_tuple)
                 average_score, class_score = self.evaluate(eval_tuple)
-                yes_score, other_score, number_score, unanswerable_score = class_score
+                # yes_score, other_score, number_score, unanswerable_score = class_score
+                yes_score, other_score, number_score, unanswerable_score, ocr_score = class_score
                 # if no_oov_score > best_valid:
                 #     best_valid = no_oov_score
                 #     self.save("BEST")
@@ -111,8 +117,8 @@ class VQA:
                     best_valid = average_score
                     self.save("BEST")
 
-                log_str += "Epoch %d: Valid average: %0.2f, yes: %0.2f  other: %0.2f  number: %0.2f  unanswerable: %0.2f\n" % \
-                    (epoch, average_score*100., yes_score*100., other_score*100.0, number_score*100.0, unanswerable_score*100.0) + \
+                log_str += "Epoch %d: Valid average: %0.2f, yes: %0.2f  other: %0.2f  number: %0.2f  unanswerable: %0.2f ocr: %0.2f\n" % \
+                    (epoch, average_score*100., yes_score*100., other_score*100.0, number_score*100.0, unanswerable_score*100.0, ocr_score*100.0) + \
                     "Epoch %d: Best %0.2f\n" % (epoch, best_valid*100.)
 
             print(log_str, end='')
@@ -136,9 +142,12 @@ class VQA:
         quesid2ans = {}
         for i, datum_tuple in enumerate(loader):
             ques_id, feats, boxes, sent, _, answer_type, img_ids = datum_tuple   # Avoid seeing ground truth
+            # ques_id, feats, boxes, ocr_feats, ocr_boxes, sent, _, answer_type, img_ids = datum_tuple
             with torch.no_grad():
                 feats, boxes = feats.cuda(), boxes.cuda()
+                # feats, boxes, ocr_feats, ocr_boxes = feats.cuda(), boxes.cuda(), ocr_feats.cuda(), ocr_boxes.cuda()
                 logit = self.model(feats, boxes, sent)
+                # logit = self.model(feats, boxes, ocr_feats, ocr_boxes, sent)
                 score, label = logit.max(1)
                 for qid, img_id, l, ans_type in zip(ques_id, img_ids, label.cpu().numpy(), answer_type):
                     ans = dset.label2ans[l]
@@ -198,6 +207,15 @@ if __name__ == "__main__":
                 get_data_tuple('val', bs=950,
                                shuffle=False, drop_last=False),
                 dump=os.path.join(args.output, 'val_predict.json')
+            )
+            print(result)
+        elif 'train' in args.test:    
+            # Since part of valididation data are used in pre-training/fine-tuning,
+            # only validate on the minival set.
+            result = vqa.evaluate(
+                get_data_tuple('train', bs=950,
+                               shuffle=False, drop_last=False),
+                dump=os.path.join(args.output, 'train_predict.json')
             )
             print(result)
         else:

@@ -5,6 +5,7 @@ import json
 import os
 import pickle
 import base64
+from tokenize import String
 
 import numpy as np
 import torch
@@ -19,8 +20,9 @@ TINY_IMG_NUM = 512
 FAST_IMG_NUM = 5000
 
 # The path to data and image features.
-VQA_DATA_ROOT = 'data/vizwiz/top3000_only_train/'
-MSCOCO_IMGFEAT_ROOT = 'data/vizwiz/vizwiz_imgfeat/'
+VQA_DATA_ROOT = 'data/vizwiz/top3000_only_train_softlabel/'
+VIZWIZ_IMGFEAT_ROOT = 'data/vizwiz/vizwiz_imgfeat/'
+VIZWIZ_OCRFEAT_ROOT = 'data/vizwiz/ocr_feat/oracle/'
 SPLIT2NAME = {
     'train': 'train',
     'val': 'val',
@@ -62,6 +64,9 @@ class VizWizVQADataset:
         print("len of label: ", len(self.label2ans))
         assert len(self.ans2label) == len(self.label2ans)
 
+        self.train_ocr_path = os.path.join(VIZWIZ_OCRFEAT_ROOT, '%s_ocr.pth' % ('train'))
+        self.val_ocr_path = os.path.join(VIZWIZ_OCRFEAT_ROOT, '%s_ocr.pth' % ('val'))
+
     @property
     def num_answers(self):
         return len(self.ans2label)
@@ -77,10 +82,11 @@ FIELDNAMES = ["img_id", "img_h", "img_w", "objects_id", "objects_conf",
 FIELDNAMES would be keys in the dict returned by load_obj_tsv.
 """
 class VizWizVQATorchDataset(Dataset):
-    def __init__(self, dataset: VizWizVQADataset, ocr_feat_path, model = 'uniter'):
+    def __init__(self, dataset: VizWizVQADataset, model = 'uniter'):
         super().__init__()
         self.raw_dataset = dataset
-        self.ocr_feats = self._decode_ocr(ocr_feat_path)
+        self.train_ocr_data = self._loadOcrFeat(dataset.train_ocr_path)
+        self.val_ocr_data = self._loadOcrFeat(dataset.train_ocr_path)
         self.model = model
         if args.tiny:
             topk = TINY_IMG_NUM
@@ -93,14 +99,21 @@ class VizWizVQATorchDataset(Dataset):
 
         self.offset = {}
         for split in self.raw_dataset.splits:
-            f = open(os.path.join(MSCOCO_IMGFEAT_ROOT, '%s_offset.txt' % (SPLIT2NAME[split])))
+            f = open(os.path.join(VIZWIZ_IMGFEAT_ROOT, '%s_offset.txt' % (SPLIT2NAME[split])))
             offset = f.readlines()
             for l in offset:
                 self.offset[l.split('\t')[0]] = int(l.split('\t')[1].strip())
         
-        f = open(os.path.join(MSCOCO_IMGFEAT_ROOT, '%s_d2obj36_batch.tsv' % (SPLIT2NAME['train'])))
+        self.ocr_offset = {}
+        for split in self.raw_dataset.splits:
+            f = open(os.path.join(VIZWIZ_OCRFEAT_ROOT, '%s_ocr_offset.txt' % (SPLIT2NAME[split])))
+            offset = f.readlines()
+            for l in offset:
+                self.ocr_offset[l.split('\t')[0]] = int(l.split('\t')[1].strip())
+        
+        f = open(os.path.join(VIZWIZ_IMGFEAT_ROOT, '%s_d2obj36_batch.tsv' % (SPLIT2NAME['train'])))
         self.train_lines = f.readlines()
-        f = open(os.path.join(MSCOCO_IMGFEAT_ROOT, '%s_d2obj36_batch.tsv' % (SPLIT2NAME['val'])))
+        f = open(os.path.join(VIZWIZ_IMGFEAT_ROOT, '%s_d2obj36_batch.tsv' % (SPLIT2NAME['val'])))
         self.val_lines = f.readlines()
         # f = open(os.path.join(MSCOCO_IMGFEAT_ROOT, '%s_d2obj36_batch.tsv' % (SPLIT2NAME['test'])))
         # self.val_lines = f.readlines()
@@ -120,15 +133,18 @@ class VizWizVQATorchDataset(Dataset):
         ques_id = datum['question_id']
         ques = datum['sent']
         answer_type = datum['answer_type']
-        ocr_feat = self.ocr_feats[img_id]
+        ocr_feats = None 
+        ocr_boxes = None 
 
         img_offset = self.offset[img_id]
         img_split = img_id[7:9]
         # print("img_split: ", img_split)
         if(img_split == 'tr'):
             img_info = self.train_lines[img_offset]
+            ocr_boxes, ocr_feats = self._decodeOcrFeat(self.ocr_offset[img_id], mode="train")
         elif(img_split == 'va'):
             img_info = self.val_lines[img_offset]
+            ocr_boxes, ocr_feats = self._decodeOcrFeat(self.ocr_offset[img_id], mode="val")
 
         assert img_info.startswith('VizWiz') and img_info.endswith('\n'), 'Offset is inappropriate'
         img_info = img_info.split('\t')
@@ -140,9 +156,14 @@ class VizWizVQATorchDataset(Dataset):
         boxes = decode_img[-2].copy()
         del decode_img
 
+
         # Normalize the boxes (to 0 ~ 1)
         if self.model == 'uniter':
+            boxes[:, (0, 2)] /= img_w
+            boxes[:, (1, 3)] /= img_h
             boxes = self._uniterBoxes(boxes)
+            np.testing.assert_array_less(boxes, 1+1e-5)
+            np.testing.assert_array_less(-boxes, 0+1e-5)
         else:
             boxes[:, (0, 2)] /= img_w
             boxes[:, (1, 3)] /= img_h
@@ -156,9 +177,11 @@ class VizWizVQATorchDataset(Dataset):
             target = torch.zeros(self.raw_dataset.num_answers)
             for ans, score in label.items():
                 target[self.raw_dataset.ans2label[ans]] = score
-            return ques_id, feats, boxes, ocr_feat, ques, target, answer_type, img_id
+            # return ques_id, feats, boxes, ocr_feats, ocr_boxes, ques, target, answer_type, img_id
+            return ques_id, feats, boxes, ques, target, answer_type, img_id
         else:
-            return ques_id, feats, boxes, ocr_feat, ques, answer_type, img_id
+            # return ques_id, feats, boxes, ocr_feats, ocr_boxes, ques, answer_type, img_id
+            return ques_id, feats, boxes, ques, answer_type, img_id
 
     def _decodeIMG(self, img_info):
         img_h = int(img_info[1])
@@ -175,20 +198,36 @@ class VizWizVQATorchDataset(Dataset):
     
     def _uniterBoxes(self, boxes):
         new_boxes = np.zeros((boxes.shape[0],7),dtype='float32')
-        new_boxes = np.zeros((boxes.shape[0],7),dtype='float32')
+        # new_boxes = np.zeros((boxes.shape[0],7),dtype='float32')
         new_boxes[:,1] = boxes[:,0]
         new_boxes[:,0] = boxes[:,1]
         new_boxes[:,3] = boxes[:,2]
         new_boxes[:,2] = boxes[:,3]
         new_boxes[:,4] = new_boxes[:,3]-new_boxes[:,1]
         new_boxes[:,5] = new_boxes[:,2]-new_boxes[:,0]
-        new_boxes[:,6]=new_boxes[:,4]*new_boxes[:,5]
-        return new_boxes        
+        new_boxes[:,6] = new_boxes[:,4]*new_boxes[:,5]
+        return new_boxes  
 
-    # todo: read ocr feat
-    def _decode_ocr(self, ocr_path):
+    def _decodeOcrFeat(self, offset, mode="train"):
+        ocr_data = None
+        if mode == "train":
+            ocr_data = self.train_ocr_data[offset]
+        else:
+            ocr_data = self.val_ocr_data[offset]
+        
+        new_boxes = np.zeros((ocr_data.shape[0],8), dtype='float32')
+        new_feats = np.zeros((ocr_data.shape[0],768), dtype='float32')
 
-        return
+        new_boxes = ocr_data[:, :8]
+        new_feats = ocr_data[:, 8:]
+
+        return new_boxes, new_feats
+
+    # read ocr feat
+    def _loadOcrFeat(self, ocr_path):
+        ocr_data = torch.load(ocr_path)
+
+        return ocr_data
 
     
 class VizWizVQAEvaluator:
@@ -225,7 +264,7 @@ class VizWizVQAEvaluator:
     
     def evaluate_ans_type(self, quesid2ans: dict):
         yes_score, other_score, number_score, unanswerable_score = 0., 0., 0., 0.
-        yes_num, other_num, number_num, unanswerable_num = 0, 0, 0, 0
+        yes_num, other_num, number_num, unanswerable_num= 0, 0, 0, 0
         score = 0.
 
         for quesid, (img_id, ans, ans_type) in quesid2ans.items():
@@ -255,7 +294,21 @@ class VizWizVQAEvaluator:
         number_score = number_score / number_num
         unanswerable_score = unanswerable_score / unanswerable_num
 
-        return average_score, (yes_score, other_score, number_score, unanswerable_score)
+
+        ocr_score = 0.
+        ocr_num = 0
+        # for quesid, (img_id, ans, ans_type) in quesid2ans.items():
+        #     datum = self.dataset.id2datum[quesid]
+        #     labels = datum['label']
+        #     for label in labels.keys():
+        #         if label[:3] == "OCR":
+        #             ocr_num += 1
+        #             if ans == label:
+        #                 ocr_score += labels[ans]
+                
+        # ocr_score = ocr_score / ocr_num
+
+        return average_score, (yes_score, other_score, number_score, unanswerable_score, ocr_score)
 
     
     def evaluate_soft(self, quesid2ans: dict):

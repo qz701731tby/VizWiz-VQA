@@ -149,6 +149,7 @@ class VisualConfig(object):
         self.r_layers = r_layers
 
         self.visual_feat_dim = 2048
+        self.ocr_feat_dim = 768
         self.visual_pos_dim = 4
 
         self.obj_id_num = 1600
@@ -1218,7 +1219,7 @@ class UniterOcrEmbeddings(nn.Module):
         self.ocr_linear = nn.Linear(VISUAL_CONFIG.ocr_feat_dim, config.hidden_size)
         self.ocr_layer_norm = BertLayerNorm(config.hidden_size, eps=1e-12)
         self.pos_layer_norm = BertLayerNorm(config.hidden_size, eps=1e-12)
-        self.pos_linear = nn.Linear(7, config.hidden_size)
+        self.pos_linear = nn.Linear(8, config.hidden_size)
 
         # tf naming convention for layer norm
         self.LayerNorm = BertLayerNorm(config.hidden_size, eps=1e-12)
@@ -1247,7 +1248,7 @@ class UniterModel(BertPreTrainedModel):
         super().__init__(config)
         self.embeddings = UniterTextEmbeddings(config)
         self.img_embeddings = UniterImageEmbeddings(config)
-        self.ocr_embeddings = UniterOcrEmbeddings(config)
+        # self.ocr_embeddings = UniterOcrEmbeddings(config)
         self.encoder = BertEncoder(config)
         self.pooler = BertPooler(config)
         self.apply(self.init_bert_weights)
@@ -1274,10 +1275,11 @@ class UniterOcrModel(BertPreTrainedModel):
         self.encoder = BertEncoder(config)
         self.pooler = BertPooler(config)
         self.apply(self.init_bert_weights)
+        
     def forward(self, input_ids, txt_type_ids=None,attention_mask=None,
                 visual_attention_mask=None,img_feats=None,img_pos_feat=None,img_type_ids=None, 
-                ocr_feats=None,ocr_pos_feat=None):
-        attention_mask = torch.cat((attention_mask,visual_attention_mask),dim=1)
+                ocr_feats=None,ocr_pos_feat=None,ocr_mask=None):
+        attention_mask = torch.cat((attention_mask,visual_attention_mask,ocr_mask),dim=1)
         extended_attention_mask = attention_mask.unsqueeze(1).unsqueeze(2)
         extended_attention_mask = extended_attention_mask.to(dtype=next(self.parameters()).dtype) # fp16 compatibility
         extended_attention_mask = (1.0 - extended_attention_mask) * -10000.0
@@ -1300,9 +1302,19 @@ class UniterFeatureExtraction(BertPreTrainedModel):
         :param mode:  Number of visual layers
         """
         super().__init__(config)
+        # self.uniter = UniterOcrModel(config)
         self.uniter = UniterModel(config)
         self.apply(self.init_bert_weights)
 
+    # def forward(self, input_ids, token_type_ids=None, attention_mask=None, visual_feats=None,
+    #             visual_token_type_ids=None, visual_attention_mask=None, img_pos_feat=None, 
+    #             ocr_feats=None, ocr_pos=None, ocr_mask=None):
+    #     pooled_output = self.uniter(input_ids,txt_type_ids=token_type_ids,attention_mask=attention_mask,
+    #                               img_feats=visual_feats,img_type_ids=visual_token_type_ids,
+    #                               visual_attention_mask=visual_attention_mask, img_pos_feat=img_pos_feat,
+    #                               ocr_feats=ocr_feats, ocr_pos_feat=ocr_pos, ocr_mask=ocr_mask)
+    #     return pooled_output
+    
     def forward(self, input_ids, token_type_ids=None, attention_mask=None, visual_feats=None,
                 visual_token_type_ids=None, visual_attention_mask=None, img_pos_feat=None):
         pooled_output = self.uniter(input_ids,txt_type_ids=token_type_ids,attention_mask=attention_mask,
