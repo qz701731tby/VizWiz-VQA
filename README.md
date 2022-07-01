@@ -7,5 +7,5 @@ https://vizwiz.org/tasks-and-datasets/vqa/
 # Acknowledgment
 - label selection: https://github.com/DenisDsh/VizWiz-VQA-PyTorch
 - image feature extraction: https://github.com/airsplay/py-bottom-up-attention
-- ocr: https://github.com/JaidedAI/EasyOCR
+- ocr: https://github.com/PaddlePaddle/PaddleOCR
 - UNITER base model: https://github.com/YIKUAN8/Transformers-VQA
