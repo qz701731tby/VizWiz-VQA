@@ -86,7 +86,7 @@ class VizWizVQATorchDataset(Dataset):
         super().__init__()
         self.raw_dataset = dataset
         self.train_ocr_data = self._loadOcrFeat(dataset.train_ocr_path)
-        self.val_ocr_data = self._loadOcrFeat(dataset.train_ocr_path)
+        self.val_ocr_data = self._loadOcrFeat(dataset.val_ocr_path)
         self.model = model
         if args.tiny:
             topk = TINY_IMG_NUM
