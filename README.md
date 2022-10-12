@@ -1,6 +1,54 @@
 # VizWiz-VQA
 This project participate the VizWiz VQA challenge. We try to use OCR information to improve the UNITER model.
 
+
+
+# File Structure
+
+```
+project
+│   README.md
+│   vqa_model.py  
+│		vqa_data.py
+│		vqa_vizwiz.py
+│		vqa.py
+│
+└───preprocess
+│   │		data_process.ipynb
+│		│		OCR_utils.py
+│		│		stop_list_0.py
+│
+└───ocr_process
+│   │		ocr_process.py
+│		│		ocr_feature_extractor.py
+│		│		box_connecter.py
+│		│		rectify_boxes.py
+│
+└───src
+│   │		entry.py
+│		│		modeling.py
+│		│		optimization.py
+│		│		tokenization.py
+│		│		file_utils.py
+│
+└───models
+│    └───paddleOCR_20220802
+│    └───pretrained
+│    │     │   uniter-base.pt
+│
+└───data
+│		└───vizwiz_imgfeat
+│		└───vqa_label
+│		│			│		train.json
+│		│			│		val.json
+│		│			│		trainval_ans2label.json
+│		│			│		trainval_label2ans.json
+│		│
+│		└───paddle_ocr_feat
+```
+
+
+
 # data 
 https://vizwiz.org/tasks-and-datasets/vqa/
 
