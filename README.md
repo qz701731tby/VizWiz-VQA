@@ -1,6 +1,7 @@
 # VizWiz-VQA
 This project participate the VizWiz VQA challenge. We try to use OCR information to improve the UNITER model.
 
+[![OSCS Status](https://www.oscs1024.com/platform/badge/qz701731tby/VizWiz-VQA.svg?size=small)](https://www.oscs1024.com/project/qz701731tby/VizWiz-VQA?ref=badge_small)
 
 
 # File Structure
