@@ -12,7 +12,7 @@ MAX_VQA_LENGTH = args.max_seq_length
 
 
 class VQAModel(nn.Module):
-    def __init__(self, num_answers, model = 'lxmert'):
+    def __init__(self, num_answers, model = 'uniter'):
         super().__init__()
         self.model = model
         # Build LXRT encoder
@@ -35,7 +35,8 @@ class VQAModel(nn.Module):
         )
         self.logit_fc.apply(self.encoder.model.init_bert_weights)
 
-    def forward(self, feat, pos, sent):
+    # def forward(self, feat, pos, sent):
+    def forward(self, feat, pos, ocr_feats, ocr_pos, sent):
         """
         b -- batch_size, o -- object_number, f -- visual_feature_size
 
@@ -50,7 +51,8 @@ class VQAModel(nn.Module):
         elif self.model == 'visualbert':
             x = self.encoder(sent, feat)
         elif self.model == 'uniter':
-            x = self.encoder(sent, feat, pos)
+            # x = self.encoder(sent, feat, pos)
+            x = self.encoder(sent, feat, pos, ocr_feats, ocr_pos)
         logit = self.logit_fc(x)
 
         return logit

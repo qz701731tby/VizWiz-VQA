@@ -75,16 +75,16 @@ class VQA:
         best_valid = 0.
         for epoch in range(args.epochs):
             quesid2ans = {}
-            for i, (ques_id, feats, boxes, sent, target, answer_type, img_id) in iter_wrapper(enumerate(loader)):
-            # for i, ( ques_id, feats, boxes, ocr_feats, ocr_boxes, sent, target, answer_type, img_id) in iter_wrapper(enumerate(loader)):
+            # for i, (ques_id, feats, boxes, sent, target, answer_type, img_id) in iter_wrapper(enumerate(loader)):
+            for i, ( ques_id, feats, boxes, ocr_feats, ocr_boxes, sent, target, answer_type, img_id) in iter_wrapper(enumerate(loader)):
 
                 self.model.train()
                 self.optim.zero_grad()
 
-                feats, boxes, target = feats.cuda(), boxes.cuda(), target.cuda()
-                # feats, boxes, ocr_feats, ocr_boxes, target = feats.cuda(), boxes.cuda(), ocr_feats.cuda(), ocr_boxes.cuda(), target.cuda()
-                logit = self.model(feats, boxes, sent)
-                # logit = self.model(feats, boxes, ocr_feats, ocr_boxes, sent)
+                # feats, boxes, target = feats.cuda(), boxes.cuda(), target.cuda()
+                feats, boxes, ocr_feats, ocr_boxes, target = feats.cuda(), boxes.cuda(), ocr_feats.cuda(), ocr_boxes.cuda(), target.cuda()
+                # logit = self.model(feats, boxes, sent)
+                logit = self.model(feats, boxes, ocr_feats, ocr_boxes, sent)
                 assert logit.dim() == target.dim() == 2
                 loss = self.bce_loss(logit, target)
                 loss = loss * logit.size(1)
@@ -141,13 +141,13 @@ class VQA:
         dset, loader, evaluator = eval_tuple
         quesid2ans = {}
         for i, datum_tuple in enumerate(loader):
-            ques_id, feats, boxes, sent, _, answer_type, img_ids = datum_tuple   # Avoid seeing ground truth
-            # ques_id, feats, boxes, ocr_feats, ocr_boxes, sent, _, answer_type, img_ids = datum_tuple
+            # ques_id, feats, boxes, sent, _, answer_type, img_ids = datum_tuple   # Avoid seeing ground truth
+            ques_id, feats, boxes, ocr_feats, ocr_boxes, sent, _, answer_type, img_ids = datum_tuple
             with torch.no_grad():
-                feats, boxes = feats.cuda(), boxes.cuda()
-                # feats, boxes, ocr_feats, ocr_boxes = feats.cuda(), boxes.cuda(), ocr_feats.cuda(), ocr_boxes.cuda()
-                logit = self.model(feats, boxes, sent)
-                # logit = self.model(feats, boxes, ocr_feats, ocr_boxes, sent)
+                # feats, boxes = feats.cuda(), boxes.cuda()
+                feats, boxes, ocr_feats, ocr_boxes = feats.cuda(), boxes.cuda(), ocr_feats.cuda(), ocr_boxes.cuda()
+                # logit = self.model(feats, boxes, sent)
+                logit = self.model(feats, boxes, ocr_feats, ocr_boxes, sent)
                 score, label = logit.max(1)
                 for qid, img_id, l, ans_type in zip(ques_id, img_ids, label.cpu().numpy(), answer_type):
                     ans = dset.label2ans[l]

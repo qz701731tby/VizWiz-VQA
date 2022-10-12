@@ -20,9 +20,9 @@ TINY_IMG_NUM = 512
 FAST_IMG_NUM = 5000
 
 # The path to data and image features.
-VQA_DATA_ROOT = 'data/vizwiz/top3000_only_train_softlabel/'
-VIZWIZ_IMGFEAT_ROOT = 'data/vizwiz/vizwiz_imgfeat/'
-VIZWIZ_OCRFEAT_ROOT = 'data/vizwiz/ocr_feat/oracle/'
+VQA_DATA_ROOT = 'data/vizwiz/use_paddle_ocr_en_0704/'
+VIZWIZ_IMGFEAT_ROOT = '/data_zt/VQA/vizwiz_imgfeat'
+VIZWIZ_OCRFEAT_ROOT = 'data/vizwiz/paddle_ocr_feat/en_oracle/'
 SPLIT2NAME = {
     'train': 'train',
     'val': 'val',
@@ -86,7 +86,7 @@ class VizWizVQATorchDataset(Dataset):
         super().__init__()
         self.raw_dataset = dataset
         self.train_ocr_data = self._loadOcrFeat(dataset.train_ocr_path)
-        self.val_ocr_data = self._loadOcrFeat(dataset.train_ocr_path)
+        self.val_ocr_data = self._loadOcrFeat(dataset.val_ocr_path)
         self.model = model
         if args.tiny:
             topk = TINY_IMG_NUM
@@ -177,11 +177,11 @@ class VizWizVQATorchDataset(Dataset):
             target = torch.zeros(self.raw_dataset.num_answers)
             for ans, score in label.items():
                 target[self.raw_dataset.ans2label[ans]] = score
-            # return ques_id, feats, boxes, ocr_feats, ocr_boxes, ques, target, answer_type, img_id
-            return ques_id, feats, boxes, ques, target, answer_type, img_id
+            return ques_id, feats, boxes, ocr_feats, ocr_boxes, ques, target, answer_type, img_id
+            # return ques_id, feats, boxes, ques, target, answer_type, img_id
         else:
-            # return ques_id, feats, boxes, ocr_feats, ocr_boxes, ques, answer_type, img_id
-            return ques_id, feats, boxes, ques, answer_type, img_id
+            return ques_id, feats, boxes, ocr_feats, ocr_boxes, ques, answer_type, img_id
+            # return ques_id, feats, boxes, ques, answer_type, img_id
 
     def _decodeIMG(self, img_info):
         img_h = int(img_info[1])
@@ -297,16 +297,17 @@ class VizWizVQAEvaluator:
 
         ocr_score = 0.
         ocr_num = 0
-        # for quesid, (img_id, ans, ans_type) in quesid2ans.items():
-        #     datum = self.dataset.id2datum[quesid]
-        #     labels = datum['label']
-        #     for label in labels.keys():
-        #         if label[:3] == "OCR":
-        #             ocr_num += 1
-        #             if ans == label:
-        #                 ocr_score += labels[ans]
+        # ocr label evaluation
+        for quesid, (img_id, ans, ans_type) in quesid2ans.items():
+            datum = self.dataset.id2datum[quesid]
+            labels = datum['label']
+            for label in labels.keys():
+                if label[:3] == "OCR":
+                    ocr_num += 1
+                    if ans == label:
+                        ocr_score += labels[ans]
                 
-        # ocr_score = ocr_score / ocr_num
+        ocr_score = ocr_score / ocr_num
 
         return average_score, (yes_score, other_score, number_score, unanswerable_score, ocr_score)
 

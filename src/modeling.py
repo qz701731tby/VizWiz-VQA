@@ -1302,25 +1302,25 @@ class UniterFeatureExtraction(BertPreTrainedModel):
         :param mode:  Number of visual layers
         """
         super().__init__(config)
-        # self.uniter = UniterOcrModel(config)
-        self.uniter = UniterModel(config)
+        self.uniter = UniterOcrModel(config)
+        # self.uniter = UniterModel(config)
         self.apply(self.init_bert_weights)
 
-    # def forward(self, input_ids, token_type_ids=None, attention_mask=None, visual_feats=None,
-    #             visual_token_type_ids=None, visual_attention_mask=None, img_pos_feat=None, 
-    #             ocr_feats=None, ocr_pos=None, ocr_mask=None):
-    #     pooled_output = self.uniter(input_ids,txt_type_ids=token_type_ids,attention_mask=attention_mask,
-    #                               img_feats=visual_feats,img_type_ids=visual_token_type_ids,
-    #                               visual_attention_mask=visual_attention_mask, img_pos_feat=img_pos_feat,
-    #                               ocr_feats=ocr_feats, ocr_pos_feat=ocr_pos, ocr_mask=ocr_mask)
-    #     return pooled_output
-    
     def forward(self, input_ids, token_type_ids=None, attention_mask=None, visual_feats=None,
-                visual_token_type_ids=None, visual_attention_mask=None, img_pos_feat=None):
+                visual_token_type_ids=None, visual_attention_mask=None, img_pos_feat=None, 
+                ocr_feats=None, ocr_pos=None, ocr_mask=None):
         pooled_output = self.uniter(input_ids,txt_type_ids=token_type_ids,attention_mask=attention_mask,
                                   img_feats=visual_feats,img_type_ids=visual_token_type_ids,
-                                  visual_attention_mask=visual_attention_mask, img_pos_feat=img_pos_feat)
+                                  visual_attention_mask=visual_attention_mask, img_pos_feat=img_pos_feat,
+                                  ocr_feats=ocr_feats, ocr_pos_feat=ocr_pos, ocr_mask=ocr_mask)
         return pooled_output
+    
+    # def forward(self, input_ids, token_type_ids=None, attention_mask=None, visual_feats=None,
+    #             visual_token_type_ids=None, visual_attention_mask=None, img_pos_feat=None):
+    #     pooled_output = self.uniter(input_ids,txt_type_ids=token_type_ids,attention_mask=attention_mask,
+    #                               img_feats=visual_feats,img_type_ids=visual_token_type_ids,
+    #                               visual_attention_mask=visual_attention_mask, img_pos_feat=img_pos_feat)
+    #     return pooled_output
 
 class ChexBertTextEmbeddings(nn.Module):
     def __init__(self, config):

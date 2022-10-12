@@ -1,0 +1,90 @@
+Epoch 0: train average: 29.90, yes: 17.85  other: 16.26  number: 13.62  unanswerable: 65.54 ocr: 8.34
+Epoch 0: Valid average: 46.29, yes: 42.38  other: 28.53  number: 22.83  unanswerable: 80.55 ocr: 17.65
+Epoch 0: Best 46.29
+Epoch 1: train average: 43.17, yes: 46.30  other: 28.65  number: 18.68  unanswerable: 78.68 ocr: 24.21
+Epoch 1: Valid average: 49.35, yes: 42.74  other: 33.50  number: 24.47  unanswerable: 80.50 ocr: 21.70
+Epoch 1: Best 49.35
+Epoch 2: train average: 46.47, yes: 52.98  other: 32.91  number: 22.82  unanswerable: 79.04 ocr: 30.62
+Epoch 2: Valid average: 50.23, yes: 49.57  other: 34.38  number: 26.34  unanswerable: 80.50 ocr: 24.59
+Epoch 2: Best 50.23
+Epoch 3: train average: 49.21, yes: 59.72  other: 36.34  number: 25.28  unanswerable: 79.43 ocr: 34.97
+Epoch 3: Valid average: 51.18, yes: 49.22  other: 37.12  number: 25.01  unanswerable: 78.41 ocr: 31.43
+Epoch 3: Best 51.18
+Epoch 4: train average: 51.91, yes: 66.05  other: 39.58  number: 30.83  unanswerable: 80.09 ocr: 39.24
+Epoch 4: Valid average: 51.07, yes: 54.22  other: 36.99  number: 32.59  unanswerable: 77.36 ocr: 31.56
+Epoch 4: Best 51.18
+Epoch 5: train average: 54.57, yes: 68.73  other: 43.10  number: 33.83  unanswerable: 80.65 ocr: 41.74
+Epoch 5: Valid average: 52.42, yes: 51.81  other: 38.42  number: 33.02  unanswerable: 79.10 ocr: 31.22
+Epoch 5: Best 52.42
+Epoch 6: train average: 57.25, yes: 69.81  other: 46.69  number: 42.12  unanswerable: 81.17 ocr: 44.48
+Epoch 6: Valid average: 52.35, yes: 52.87  other: 39.12  number: 35.14  unanswerable: 77.39 ocr: 31.63
+Epoch 6: Best 52.42
+Epoch 7: train average: 59.79, yes: 70.91  other: 50.26  number: 47.63  unanswerable: 81.33 ocr: 45.39
+Epoch 7: Valid average: 51.55, yes: 54.22  other: 38.19  number: 34.44  unanswerable: 76.53 ocr: 29.30
+Epoch 7: Best 52.42
+Epoch 8: train average: 62.34, yes: 71.59  other: 53.90  number: 50.58  unanswerable: 81.57 ocr: 46.41
+Epoch 8: Valid average: 52.61, yes: 50.65  other: 38.34  number: 33.69  unanswerable: 79.96 ocr: 25.74
+Epoch 8: Best 52.61
+Epoch 9: train average: 64.34, yes: 71.57  other: 56.80  number: 58.20  unanswerable: 81.50 ocr: 46.48
+Epoch 9: Valid average: 52.87, yes: 53.24  other: 39.05  number: 32.09  unanswerable: 79.12 ocr: 28.58
+Epoch 9: Best 52.87
+Epoch 10: train average: 66.01, yes: 72.22  other: 59.09  number: 62.75  unanswerable: 81.69 ocr: 46.56
+Epoch 10: Valid average: 52.87, yes: 51.12  other: 39.01  number: 36.93  unanswerable: 79.35 ocr: 28.98
+Epoch 10: Best 52.87
+Epoch 11: train average: 67.31, yes: 72.21  other: 60.94  number: 66.23  unanswerable: 81.78 ocr: 46.39
+Epoch 11: Valid average: 53.36, yes: 50.20  other: 39.99  number: 33.89  unanswerable: 79.23 ocr: 30.53
+Epoch 11: Best 53.36
+Epoch 12: train average: 68.00, yes: 72.91  other: 61.88  number: 70.00  unanswerable: 81.72 ocr: 46.47
+Epoch 12: Valid average: 52.93, yes: 52.17  other: 39.81  number: 34.76  unanswerable: 77.97 ocr: 31.80
+Epoch 12: Best 53.36
+Epoch 13: train average: 68.39, yes: 72.67  other: 62.43  number: 70.19  unanswerable: 81.80 ocr: 45.79
+Epoch 13: Valid average: 53.40, yes: 49.69  other: 40.05  number: 38.23  unanswerable: 79.17 ocr: 31.47
+Epoch 13: Best 53.40
+Epoch 14: train average: 68.68, yes: 72.69  other: 62.85  number: 71.43  unanswerable: 81.81 ocr: 45.98
+Epoch 14: Valid average: 53.12, yes: 51.14  other: 39.81  number: 32.33  unanswerable: 78.78 ocr: 30.55
+Epoch 14: Best 53.40
+Epoch 15: train average: 69.01, yes: 73.16  other: 63.26  number: 71.68  unanswerable: 81.92 ocr: 46.02
+Epoch 15: Valid average: 53.09, yes: 49.11  other: 39.71  number: 32.33  unanswerable: 79.14 ocr: 30.67
+Epoch 15: Best 53.40
+Epoch 16: train average: 69.12, yes: 73.26  other: 63.41  number: 72.45  unanswerable: 81.90 ocr: 45.73
+Epoch 16: Valid average: 53.46, yes: 51.99  other: 39.82  number: 36.46  unanswerable: 79.53 ocr: 29.86
+Epoch 16: Best 53.46
+Epoch 17: train average: 69.22, yes: 73.26  other: 63.56  number: 73.19  unanswerable: 81.89 ocr: 45.87
+Epoch 17: Valid average: 53.31, yes: 50.88  other: 40.11  number: 34.51  unanswerable: 78.76 ocr: 30.98
+Epoch 17: Best 53.46
+Epoch 18: train average: 69.33, yes: 73.08  other: 63.69  number: 74.12  unanswerable: 81.98 ocr: 45.74
+Epoch 18: Valid average: 53.39, yes: 51.80  other: 40.01  number: 35.84  unanswerable: 79.00 ocr: 32.00
+Epoch 18: Best 53.46
+Epoch 19: train average: 69.52, yes: 73.50  other: 63.92  number: 74.15  unanswerable: 82.00 ocr: 45.92
+Epoch 19: Valid average: 53.57, yes: 50.72  other: 40.44  number: 35.84  unanswerable: 78.90 ocr: 31.89
+Epoch 19: Best 53.57
+Epoch 20: train average: 69.50, yes: 73.59  other: 63.90  number: 73.81  unanswerable: 81.98 ocr: 45.54
+Epoch 20: Valid average: 53.51, yes: 51.60  other: 39.93  number: 34.29  unanswerable: 79.61 ocr: 31.86
+Epoch 20: Best 53.57
+Epoch 21: train average: 69.63, yes: 73.57  other: 64.06  number: 74.28  unanswerable: 82.06 ocr: 45.97
+Epoch 21: Valid average: 53.75, yes: 52.23  other: 40.65  number: 33.96  unanswerable: 78.91 ocr: 31.99
+Epoch 21: Best 53.75
+Epoch 22: train average: 69.80, yes: 73.77  other: 64.31  number: 74.23  unanswerable: 82.04 ocr: 45.98
+Epoch 22: Valid average: 53.61, yes: 52.71  other: 40.20  number: 35.16  unanswerable: 79.20 ocr: 31.25
+Epoch 22: Best 53.75
+Epoch 23: train average: 69.90, yes: 73.83  other: 64.41  number: 74.70  unanswerable: 82.11 ocr: 45.91
+Epoch 23: Valid average: 53.68, yes: 52.77  other: 40.42  number: 30.16  unanswerable: 79.17 ocr: 30.97
+Epoch 23: Best 53.75
+Epoch 24: train average: 70.04, yes: 73.80  other: 64.63  number: 74.38  unanswerable: 82.12 ocr: 46.08
+Epoch 24: Valid average: 54.03, yes: 53.35  other: 40.57  number: 34.29  unanswerable: 79.73 ocr: 32.21
+Epoch 24: Best 54.03
+Epoch 25: train average: 70.09, yes: 73.87  other: 64.69  number: 74.65  unanswerable: 82.13 ocr: 45.96
+Epoch 25: Valid average: 53.97, yes: 52.98  other: 40.55  number: 34.29  unanswerable: 79.65 ocr: 31.70
+Epoch 25: Best 54.03
+Epoch 26: train average: 70.20, yes: 73.85  other: 64.87  number: 74.80  unanswerable: 82.12 ocr: 46.34
+Epoch 26: Valid average: 54.08, yes: 53.09  other: 40.88  number: 36.46  unanswerable: 79.28 ocr: 32.99
+Epoch 26: Best 54.08
+Epoch 27: train average: 70.30, yes: 73.99  other: 64.99  number: 75.15  unanswerable: 82.16 ocr: 46.30
+Epoch 27: Valid average: 53.70, yes: 52.86  other: 40.41  number: 36.68  unanswerable: 79.03 ocr: 31.99
+Epoch 27: Best 54.08
+Epoch 28: train average: 70.35, yes: 74.09  other: 65.04  number: 75.18  unanswerable: 82.18 ocr: 46.25
+Epoch 28: Valid average: 53.90, yes: 53.22  other: 40.47  number: 34.29  unanswerable: 79.55 ocr: 31.49
+Epoch 28: Best 54.08
+Epoch 29: train average: 70.41, yes: 74.06  other: 65.14  number: 75.07  unanswerable: 82.16 ocr: 46.16
+Epoch 29: Valid average: 54.04, yes: 52.68  other: 40.77  number: 36.46  unanswerable: 79.41 ocr: 32.27
+Epoch 29: Best 54.08

@@ -243,32 +243,9 @@ class UniterEncoder(nn.Module):
         return 768
 
     # ocr code
-    # def forward(self, sents, feats, boxes, ocr_feats, ocr_pos, visual_attention_mask=None):
-    #     train_features = convert_sents_to_features(
-    #         sents, self.max_seq_length, self.tokenizer)
-
-    #     input_ids = torch.tensor([f.input_ids for f in train_features], dtype=torch.long).cuda()
-    #     input_mask = torch.tensor([f.input_mask for f in train_features], dtype=torch.long).cuda()
-    #     segment_ids = torch.tensor([f.segment_ids for f in train_features], dtype=torch.long).cuda()
-        
-    #     assert feats.shape[1] == 36 , "Not Using 36 ROIs, please change the following 2 lines"
-    #     visual_segment_ids = torch.ones(input_ids.shape[0],feats.shape[1],dtype=torch.long).cuda()
-    #     v_mask = torch.ones(input_mask.shape[0],feats.shape[1],dtype=torch.long).cuda()
-
-    #     assert ocr_feats.shape[1] == 3 , "Not Using 3 ocr ROIS, please change the following 2 lines"
-    #     # ocr_segment_ids = torch.ones(input_ids.shape[0], ocr_feats.shape[1],dtype=torch.long).cuda()
-    #     ocr_mask = torch.ones(input_mask.shape[0], ocr_feats.shape[1],dtype=torch.long).cuda()
-        
-
-    #     output = self.model(input_ids = input_ids, token_type_ids = segment_ids,attention_mask = input_mask,
-    #                         visual_feats = feats,visual_token_type_ids=visual_segment_ids,
-    #                         visual_attention_mask=v_mask,img_pos_feat=boxes, 
-    #                         ocr_feats=ocr_feats, ocr_pos=ocr_pos, ocr_mask=ocr_mask)
-    #     return output
-    
-    # no ocr code
-    def forward(self, sents, feats, boxes, visual_attention_mask=None):
-        train_features = convert_sents_to_features(sents, self.max_seq_length, self.tokenizer)
+    def forward(self, sents, feats, boxes, ocr_feats, ocr_pos, visual_attention_mask=None):
+        train_features = convert_sents_to_features(
+            sents, self.max_seq_length, self.tokenizer)
 
         input_ids = torch.tensor([f.input_ids for f in train_features], dtype=torch.long).cuda()
         input_mask = torch.tensor([f.input_mask for f in train_features], dtype=torch.long).cuda()
@@ -276,12 +253,35 @@ class UniterEncoder(nn.Module):
         
         assert feats.shape[1] == 36 , "Not Using 36 ROIs, please change the following 2 lines"
         visual_segment_ids = torch.ones(input_ids.shape[0],feats.shape[1],dtype=torch.long).cuda()
-        v_mask = torch.ones(input_mask.shape[0],feats.shape[1],dtype=torch.long).cuda()        
+        v_mask = torch.ones(input_mask.shape[0],feats.shape[1],dtype=torch.long).cuda()
+
+        assert ocr_feats.shape[1] == 3 , "Not Using 3 ocr ROIS, please change the following 2 lines"
+        # ocr_segment_ids = torch.ones(input_ids.shape[0], ocr_feats.shape[1],dtype=torch.long).cuda()
+        ocr_mask = torch.ones(input_mask.shape[0], ocr_feats.shape[1],dtype=torch.long).cuda()
+        
 
         output = self.model(input_ids = input_ids, token_type_ids = segment_ids,attention_mask = input_mask,
                             visual_feats = feats,visual_token_type_ids=visual_segment_ids,
-                            visual_attention_mask=v_mask,img_pos_feat=boxes)
+                            visual_attention_mask=v_mask,img_pos_feat=boxes, 
+                            ocr_feats=ocr_feats, ocr_pos=ocr_pos, ocr_mask=ocr_mask)
         return output
+    
+    # no ocr code
+    # def forward(self, sents, feats, boxes, visual_attention_mask=None):
+    #     train_features = convert_sents_to_features(sents, self.max_seq_length, self.tokenizer)
+
+    #     input_ids = torch.tensor([f.input_ids for f in train_features], dtype=torch.long).cuda()
+    #     input_mask = torch.tensor([f.input_mask for f in train_features], dtype=torch.long).cuda()
+    #     segment_ids = torch.tensor([f.segment_ids for f in train_features], dtype=torch.long).cuda()
+        
+    #     assert feats.shape[1] == 36 , "Not Using 36 ROIs, please change the following 2 lines"
+    #     visual_segment_ids = torch.ones(input_ids.shape[0],feats.shape[1],dtype=torch.long).cuda()
+    #     v_mask = torch.ones(input_mask.shape[0],feats.shape[1],dtype=torch.long).cuda()        
+
+    #     output = self.model(input_ids=input_ids, token_type_ids=segment_ids,attention_mask=input_mask,
+    #                         visual_feats=feats, visual_token_type_ids=visual_segment_ids,
+    #                         visual_attention_mask=v_mask, img_pos_feat=boxes)
+    #     return output
     
     def load(self,path):
         state_dict = torch.load(path)
