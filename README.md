@@ -48,6 +48,14 @@ project
 │   └───paddle_ocr_feat
 ```
 
+# installation
+```
+pip install -r requirements.txt
+```
+For image feature extraction, please refer to https://github.com/airsplay/py-bottom-up-attention.
+
+For OCR, please refer to https://github.com/PaddlePaddle/PaddleOCR.
+
 # VQA data 
 https://vizwiz.org/tasks-and-datasets/vqa/
 
