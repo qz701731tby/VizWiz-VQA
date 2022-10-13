@@ -48,10 +48,36 @@ project
 │   └───paddle_ocr_feat
 ```
 
-
-
-# data 
+# VQA data 
 https://vizwiz.org/tasks-and-datasets/vqa/
+
+# training
+### 1. image feature extract
+For extract methods, please refer to https://github.com/airsplay/py-bottom-up-attention.
+### 2. OCR (under `./ocr_process`)
+In this part, we do OCR and box merge, `img_path` is the image folder you need to process:
+
+` python ocr_process.py --img_path ./VizWiz/train --model en`
+
+### 3. VQA label process (under `./preprocess`)
+This part contains label selection (soft label and hard label) and OCR boxes selection. For details, please refer to `data_process.ipynb`
+
+### 4. OCR feature extract (under `./ocr_process`)
+We extract the feature for selected boxes in part 3 with BERT model. The OCR feature contains position info `[i, x1, y1, x2, y2, w, h, w*h]` and OCR sentence BERT [CLS] feature.
+
+`python ocr_feature_extractor.py`
+
+### 5. train
+If you change the data path, please change the corresponding code in `vqa_vizwiz.py`:
+```
+VQA_DATA_ROOT = 'data/vizwiz/use_paddle_ocr_en_0704/'
+VIZWIZ_IMGFEAT_ROOT = '/data_zt/VQA/vizwiz_imgfeat'
+VIZWIZ_OCRFEAT_ROOT = 'data/vizwiz/paddle_ocr_feat/en_oracle/'
+```
+Then run the following command line:
+
+`python vqa.py --model uniter --epochs 15 --max_seq_length 20 --load_pretrained models/pretrained/uniter-base.pt --output models/paddleOCR_20220802/`
+
 
 # performance
 with ocr feature (5% better than non-ocr)
