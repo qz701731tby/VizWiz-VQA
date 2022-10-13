@@ -15,3 +15,6 @@ numpy
 
 # for spelling correction
 symspellpy
+
+# for OCR BERT feature extraction
+transformers
